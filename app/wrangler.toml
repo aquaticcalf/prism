@@ -1,0 +1,11 @@
+name = "prism"
+compatibility_date = "2026-06-08"
+main = "backend/index.ts"
+
+[vars]
+AI_API_KEY = ""
+# Actual value set via .dev.vars (local) or `wrangler secret put AI_API_KEY` (production)
+
+[assets]
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
