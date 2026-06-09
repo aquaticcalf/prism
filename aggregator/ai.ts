@@ -6,25 +6,13 @@ import { fromEffect, flatMap, filterMap, fromAsyncIterable } from "effect/Stream
 import { fromNullable } from "effect/Option"
 import { GoogleGenAI } from "@google/genai"
 import type { GenerateContentResponse } from "@google/genai"
-import { prompt } from "./prompt"
+import { ApiError } from "./errors"
 
-export class ApiError {
-  readonly _tag = "ApiError"
-  readonly status: number
-  readonly message: string
-  constructor(status: number, message: string) {
-    this.status = status
-    this.message = message
-  }
-}
-
-export class ParseError {
-  readonly _tag = "ParseError"
-  readonly message: string
-  constructor(message: string) {
-    this.message = message
-  }
-}
+const prompt = (url: string) =>
+  `Visit this URL and output the page's article content verbatim as markdown.
+  Do not summarize, rewrite, or add any commentary.
+  Output only the raw article text.
+  ${url}`
 
 export class AIService extends Tag("AIService")<
   AIService,

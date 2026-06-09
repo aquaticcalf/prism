@@ -9,5 +9,8 @@
   "dependencies": {
     "@google/genai": "catalog:",
     "effect": "catalog:"
+  },
+  "devDependencies": {
+    "vitest": "catalog:"
   }
 }

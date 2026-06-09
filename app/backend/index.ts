@@ -4,10 +4,15 @@ import {
   provideService as provideEffectService,
   promise as effectPromise,
 } from "effect/Effect"
-import { runForEach, provideService as provideStreamService } from "effect/Stream"
+import {
+  fromEffect,
+  flatMap,
+  runForEach,
+  provideService as provideStreamService,
+} from "effect/Stream"
 import { Hono } from "hono"
 import { streamText } from "hono/streaming"
-import { browse, json, AIService, makeLive } from "aggregator"
+import { json, AIService, makeLive } from "aggregator"
 
 const app = new Hono<{ Bindings: Env }>()
   .get("/api/browser", async (c) => {
@@ -15,7 +20,10 @@ const app = new Hono<{ Bindings: Env }>()
     if (!url) return c.json({ error: "url query param required" }, 400)
 
     return streamText(c, async (stream) => {
-      const program = pipe(browse(url), provideStreamService(AIService, makeLive(c.env.AI_API_KEY)))
+      const program = pipe(
+        fromEffect(AIService).pipe(flatMap((ai) => ai.generateStream(url))),
+        provideStreamService(AIService, makeLive(c.env.AI_API_KEY)),
+      )
       await runPromise(runForEach(program, (text) => effectPromise(() => stream.write(text))))
     })
   })
