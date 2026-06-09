@@ -4,18 +4,6 @@ import { GoogleGenAI } from "@google/genai"
 
 const app = new Hono<{ Bindings: Env }>()
 
-  .get("/api/hello", (c) => c.json({ message: "Hello, world!" }))
-
-  .get("/api/health", (c) => c.json({ status: "ok" }))
-
-  .get("/api/message", (c) =>
-    c.json({
-      greeting: "Hello from the API!",
-      timestamp: new Date().toISOString(),
-      framework: "Hono + Cloudflare Workers",
-    }),
-  )
-
   .get("/api/browser", async (c) => {
     const url = c.req.query("url")
     if (!url) return c.json({ error: "url query param required" }, 400)
