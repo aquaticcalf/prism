@@ -42,7 +42,7 @@ const app = new Hono<{ Bindings: Env }>()
     const ai = new GoogleGenAI({ apiKey: c.env.AI_API_KEY })
 
     const response = await ai.models.generateContent({
-      model: "auto",
+      model: "gemini-3.1-flash-lite",
       contents: [prompt(url)],
       config: {
         tools: [{ urlContext: {} }],
