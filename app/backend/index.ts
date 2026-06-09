@@ -21,6 +21,9 @@ const app = new Hono<{ Bindings: Env }>()
       contents: [prompt(url)],
       config: {
         tools: [{ urlContext: {} }],
+        thinkingConfig: {
+          thinkingBudget: 0,
+        },
       },
     })
 
@@ -39,7 +42,7 @@ const app = new Hono<{ Bindings: Env }>()
     const ai = new GoogleGenAI({ apiKey: c.env.AI_API_KEY })
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.1-flash-lite",
+      model: "auto",
       contents: [prompt(url)],
       config: {
         tools: [{ urlContext: {} }],
@@ -54,6 +57,9 @@ const app = new Hono<{ Bindings: Env }>()
             body: { type: "STRING", description: "Full article body as markdown" },
           },
           required: ["date", "body"],
+        },
+        thinkingConfig: {
+          thinkingBudget: 0,
         },
       },
     })
