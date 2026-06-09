@@ -6,6 +6,20 @@ main = "backend/index.ts"
 AI_API_KEY = ""
 # Actual value set via .dev.vars (local) or `wrangler secret put AI_API_KEY` (production)
 
+[[kv_namespaces]]
+binding = "AI_RESULTS"
+id = "ai-results"
+preview_id = "ai-results"
+
+[[queues.producers]]
+queue = "ai-queue"
+binding = "AI_QUEUE"
+
+[[queues.consumers]]
+queue = "ai-queue"
+max_batch_size = 1
+max_batch_timeout = 30
+
 [assets]
 not_found_handling = "single-page-application"
 run_worker_first = ["/api/*"]
