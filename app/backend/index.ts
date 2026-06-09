@@ -55,6 +55,14 @@ const app = new Hono<{ Bindings: Env }>()
     }
     return c.json({ status: "done", result: (job as Done).result })
   })
+  .delete("/api/jobs/:id", async (c) => {
+    const jobId = c.req.param("id")
+    const raw = await c.env.AI_RESULTS.get(jobId)
+    if (!raw) return c.json({ error: "job not found" }, 404)
+
+    await c.env.AI_RESULTS.delete(jobId)
+    return c.body(null, 204)
+  })
 
 export type AppType = typeof app
 
