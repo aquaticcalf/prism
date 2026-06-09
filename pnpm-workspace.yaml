@@ -1,5 +1,6 @@
 packages:
   - app
+  - aggregator
 
 catalogMode: prefer
 
@@ -24,6 +25,7 @@ catalog:
   "@tanstack/react-query": ^5.101.0
   cloudflare: ^5.2.0
   "@google/genai": ^2.8.0
+  aggregator: ^0.1.2
 overrides:
   vite: "catalog:"
   vitest: "catalog:"

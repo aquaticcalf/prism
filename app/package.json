@@ -11,6 +11,7 @@
   "dependencies": {
     "@google/genai": "catalog:",
     "@tanstack/react-query": "catalog:",
+    "aggregator": "workspace:*",
     "cloudflare": "catalog:",
     "hono": "catalog:",
     "react": "catalog:",
