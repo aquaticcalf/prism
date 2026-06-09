@@ -1,6 +1,18 @@
 import { GoogleGenAI } from "@google/genai"
 import { prompt } from "./prompt"
 
+import { object, string, nullable, iso } from "zod"
+
+const articleSchema = object({
+  date: nullable(iso.date().describe("Publication date of the article or null if not found")),
+  body: string().describe("Full article body as markdown"),
+})
+
+function toJsonSchema(schema: typeof articleSchema) {
+  const { $schema: _, ...rest } = schema.toJSONSchema()
+  return rest
+}
+
 export async function json(url: string, apiKey: string) {
   const ai = new GoogleGenAI({ apiKey })
   const response = await ai.models.generateContent({
@@ -9,19 +21,9 @@ export async function json(url: string, apiKey: string) {
     config: {
       tools: [{ urlContext: {} }],
       responseMimeType: "application/json",
-      responseSchema: {
-        type: "OBJECT",
-        properties: {
-          date: {
-            type: "date",
-            description: "Publication date of the article in UTC, or null if not found",
-          },
-          body: { type: "STRING", description: "Full article body as markdown" },
-        },
-        required: ["date", "body"],
-      },
+      responseSchema: toJsonSchema(articleSchema),
       thinkingConfig: { thinkingBudget: 0 },
     },
   })
-  return response.text ? JSON.parse(response.text) : { date: null, body: null }
+  return response.text ? articleSchema.parse(JSON.parse(response.text)) : { date: null, body: null }
 }
