@@ -1,29 +1,21 @@
-import { GoogleGenAI } from "@google/genai"
-import { prompt } from "./prompt"
+import { gen, try as tryEffect } from "effect/Effect"
+import { make } from "effect/JSONSchema"
+import { decodeUnknownSync } from "effect/Schema"
+import { ArticleSchema } from "./schema"
+import { AIService, ParseError } from "./ai"
 
-import { object, string, nullable, iso } from "zod"
-
-const articleSchema = object({
-  date: nullable(iso.date().describe("Publication date of the article or null if not found")),
-  body: string().describe("Full article body as markdown"),
-})
-
-function toJsonSchema(schema: typeof articleSchema) {
-  const { $schema: _, ...rest } = schema.toJSONSchema()
+const responseSchema = (() => {
+  const { $schema: _, ...rest } = make(ArticleSchema)
   return rest
-}
+})()
 
-export async function json(url: string, apiKey: string) {
-  const ai = new GoogleGenAI({ apiKey })
-  const response = await ai.models.generateContent({
-    model: "gemini-3.1-flash-lite",
-    contents: [prompt(url)],
-    config: {
-      tools: [{ urlContext: {} }],
-      responseMimeType: "application/json",
-      responseSchema: toJsonSchema(articleSchema),
-      thinkingConfig: { thinkingBudget: 0 },
-    },
+export const json = (url: string) =>
+  gen(function* () {
+    const ai = yield* AIService
+    const text = yield* ai.generateJson(url, responseSchema)
+    if (!text) return { date: null, body: null }
+    return yield* tryEffect({
+      try: () => decodeUnknownSync(ArticleSchema)(JSON.parse(text)),
+      catch: (e) => new ParseError(String(e)),
+    })
   })
-  return response.text ? articleSchema.parse(JSON.parse(response.text)) : { date: null, body: null }
-}

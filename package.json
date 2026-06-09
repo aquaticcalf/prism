@@ -7,6 +7,9 @@
     "dev": "vp run app#dev",
     "prepare": "vp config"
   },
+  "dependencies": {
+    "effect": "catalog:"
+  },
   "devDependencies": {
     "vite-plus": "catalog:"
   },
