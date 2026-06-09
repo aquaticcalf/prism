@@ -2,8 +2,14 @@ import { Hono } from "hono"
 import { streamText } from "hono/streaming"
 import { GoogleGenAI } from "@google/genai"
 
-const app = new Hono<{ Bindings: Env }>()
+function prompt(url: string) {
+  return `Visit this URL and output the page's article content verbatim as markdown.
+  Do not summarize, rewrite, or add any commentary.
+  Output only the raw article text.
+  ${url}`
+}
 
+const app = new Hono<{ Bindings: Env }>()
   .get("/api/browser", async (c) => {
     const url = c.req.query("url")
     if (!url) return c.json({ error: "url query param required" }, 400)
@@ -12,12 +18,7 @@ const app = new Hono<{ Bindings: Env }>()
 
     const response = await ai.models.generateContentStream({
       model: "gemini-2.5-flash-lite",
-      contents: [
-        `Visit this URL and output the page's article content verbatim as markdown.
-        Do not summarize, rewrite, or add any commentary.
-        Output only the raw article text.
-        ${url}`,
-      ],
+      contents: [prompt(url)],
       config: {
         tools: [{ urlContext: {} }],
       },
@@ -30,6 +31,22 @@ const app = new Hono<{ Bindings: Env }>()
         }
       }
     })
+  })
+  .get("/api/browser/json", async (c) => {
+    const url = c.req.query("url")
+    if (!url) return c.json({ error: "url query param required" }, 400)
+
+    const ai = new GoogleGenAI({ apiKey: c.env.AI_API_KEY })
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash-lite",
+      contents: [prompt(url)],
+      config: {
+        tools: [{ urlContext: {} }],
+      },
+    })
+
+    return c.json({ article: response.text })
   })
 
 export type AppType = typeof app
