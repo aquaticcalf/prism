@@ -1,0 +1,5 @@
+export { EmbeddingService, makeEmbeddingLive } from "./ai"
+export { store } from "./vectorize"
+export { ApiError, ParseError } from "./errors"
+export { VectorRecordSchema } from "./schema"
+export type { VectorRecord } from "./schema"

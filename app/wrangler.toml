@@ -6,6 +6,15 @@ main = "backend/index.ts"
 AI_API_KEY = ""
 # Actual value set via .dev.vars (local) or `wrangler secret put AI_API_KEY` (production)
 
+[ai]
+binding = "AI"
+remote = true
+
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "prism-index"
+remote = true
+
 [[kv_namespaces]]
 binding = "AI_RESULTS"
 id = "ai-results"
