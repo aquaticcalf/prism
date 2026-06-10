@@ -17,7 +17,7 @@ export const makeTest = (options: {
     if (err) return fail(err)
     const data = options.json?.responses?.[url]
     if (data === undefined) return fail(new ApiError(404, `No test response for ${url}`))
-    return succeed(JSON.stringify(data))
+    return succeed(typeof data === "string" ? data : JSON.stringify(data))
   },
 })
 

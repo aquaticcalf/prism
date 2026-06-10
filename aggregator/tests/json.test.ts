@@ -77,6 +77,22 @@ describe("json", () => {
     expect((result as ApiError).status).toBe(500)
   })
 
+  it("fails with ParseError when AI returns empty response", async () => {
+    const result = await runSafe(
+      "https://example.com/article",
+      makeTest({
+        json: {
+          responses: {
+            "https://example.com/article": "",
+          },
+        },
+      }),
+    )
+
+    expect(result).toBeInstanceOf(ParseError)
+    expect((result as ParseError).message).toBe("AI returned empty response")
+  })
+
   it("fails with ParseError for malformed response data", async () => {
     const result = await runSafe(
       "https://example.com/article",
