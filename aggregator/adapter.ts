@@ -6,7 +6,7 @@ export const SchemaAdapter = service<{
   toJSONSchema: () => Record<string, unknown>
 }>("SchemaAdapter")
 
-export const makeLiveSchemaAdapter = () => {
+export const makeSchemaAdapter = () => {
   const { $schema: _, $defs, ...rest } = make(ArticleSchema)
   const responseSchema = $defs
     ? JSON.parse(

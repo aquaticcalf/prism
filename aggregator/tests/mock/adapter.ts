@@ -1,6 +1,6 @@
 import { ApiError } from "shared"
 
-export const makeTest = (options: {
+export const makeTestAIService = (options: {
   json?: {
     responses?: Record<string, unknown>
     errors?: ApiError
@@ -15,6 +15,6 @@ export const makeTest = (options: {
   },
 })
 
-export const makeSchemaTestAdapter = () => ({
+export const makeTestSchemaAdapter = () => ({
   toJSONSchema: () => ({ type: "object" }) as Record<string, unknown>,
 })

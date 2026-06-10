@@ -12,7 +12,7 @@ export const AIService = service<{
   generateJson: (url: string, schema: Record<string, unknown>) => string
 }>("AIService")
 
-export const makeLive = (apiKey: string) => {
+export const makeAIService = (apiKey: string) => {
   const ai = new GoogleGenAI({ apiKey })
   return {
     generateJson: async (url: string, schema: Record<string, unknown>) => {

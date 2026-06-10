@@ -4,7 +4,7 @@ export const EmbeddingService = service<{
   embed: (text: string) => number[]
 }>("EmbeddingService")
 
-export const makeEmbeddingLive = (ai: Ai) => ({
+export const makeEmbeddingService = (ai: Ai) => ({
   embed: async (text: string) => {
     const res = (await ai.run("@cf/qwen/qwen3-embedding-0.6b", {
       text,

@@ -4,14 +4,14 @@ import { json } from "../json"
 import { AIService } from "../ai"
 import { SchemaAdapter } from "../adapter"
 import { ApiError, ParseError } from "shared"
-import { makeTest, makeSchemaTestAdapter } from "./mock/adapter"
+import { makeTestAIService, makeTestSchemaAdapter } from "./mock/adapter"
 import type { Article } from "../schema"
 
-const runSafe = async (url: string, adapter: ReturnType<typeof makeTest>) => {
+const runSafe = async (url: string, adapter: ReturnType<typeof makeTestAIService>) => {
   try {
     const value = await run(json(url), [
       [AIService, adapter],
-      [SchemaAdapter, makeSchemaTestAdapter()],
+      [SchemaAdapter, makeTestSchemaAdapter()],
     ])
     return value as Article
   } catch (e) {
@@ -23,7 +23,7 @@ describe("json", () => {
   it("returns parsed article for a valid response", async () => {
     const result = (await runSafe(
       "https://example.com/article",
-      makeTest({
+      makeTestAIService({
         json: {
           responses: {
             "https://example.com/article": {
@@ -42,7 +42,7 @@ describe("json", () => {
   it("returns null date when response has null date", async () => {
     const result = (await runSafe(
       "https://example.com/article",
-      makeTest({
+      makeTestAIService({
         json: {
           responses: {
             "https://example.com/article": {
@@ -59,7 +59,7 @@ describe("json", () => {
   })
 
   it("fails with ApiError for unregistered URL", async () => {
-    const result = await runSafe("https://unknown.com", makeTest({}))
+    const result = await runSafe("https://unknown.com", makeTestAIService({}))
 
     expect(result).toBeInstanceOf(ApiError)
     expect((result as ApiError).status).toBe(404)
@@ -68,7 +68,7 @@ describe("json", () => {
   it("fails with ApiError when error is registered", async () => {
     const result = await runSafe(
       "https://example.com/article",
-      makeTest({
+      makeTestAIService({
         json: {
           errors: new ApiError(500, "Internal Server Error"),
         },
@@ -82,7 +82,7 @@ describe("json", () => {
   it("fails with ParseError when AI returns empty response", async () => {
     const result = await runSafe(
       "https://example.com/article",
-      makeTest({
+      makeTestAIService({
         json: {
           responses: {
             "https://example.com/article": "",
@@ -98,7 +98,7 @@ describe("json", () => {
   it("fails with ParseError for malformed response data", async () => {
     const result = await runSafe(
       "https://example.com/article",
-      makeTest({
+      makeTestAIService({
         json: {
           responses: {
             "https://example.com/article": {
