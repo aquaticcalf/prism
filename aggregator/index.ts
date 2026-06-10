@@ -1,4 +1,5 @@
 export { json } from "./json"
 export { AIService, makeLive } from "./ai"
+export { SchemaAdapter, makeLiveSchemaAdapter } from "./adapter"
 export { ApiError, ParseError } from "shared"
 export type { Article } from "./schema"

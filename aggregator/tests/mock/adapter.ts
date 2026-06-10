@@ -20,3 +20,7 @@ export const makeTest = (options: {
     return succeed(JSON.stringify(data))
   },
 })
+
+export const makeSchemaTestAdapter = () => ({
+  toJSONSchema: () => ({ type: "object" }) as Record<string, unknown>,
+})

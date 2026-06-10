@@ -3,14 +3,16 @@ import { pipe } from "effect"
 import { runPromise, provideService, catchAll, succeed } from "effect/Effect"
 import { json } from "../json"
 import { AIService } from "../ai"
+import { SchemaAdapter } from "../adapter"
 import { ApiError, ParseError } from "shared"
-import { makeTest } from "./mock/adapter"
+import { makeTest, makeSchemaTestAdapter } from "./mock/adapter"
 import type { Article } from "../schema"
 
 const runSafe = (url: string, adapter: ReturnType<typeof makeTest>) =>
   runPromise(
     pipe(
       provideService(json(url), AIService, adapter),
+      (effect) => provideService(effect, SchemaAdapter, makeSchemaTestAdapter()),
       catchAll((e) => succeed(e as ApiError | ParseError)),
     ),
   )
