@@ -3,7 +3,7 @@ import { pipe } from "effect"
 import { runPromise, provideService, catchAll, succeed } from "effect/Effect"
 import { json } from "../json"
 import { AIService } from "../ai"
-import { ApiError, ParseError } from "../errors"
+import { ApiError, ParseError } from "shared"
 import { makeTest } from "./mock/adapter"
 import type { Article } from "../schema"
 

@@ -1,7 +1,7 @@
 import { Tag } from "effect/Context"
 import type { Effect } from "effect/Effect"
 import { tryPromise, andThen } from "effect/Effect"
-import { ApiError } from "./errors"
+import { ApiError } from "shared"
 
 export class EmbeddingService extends Tag("EmbeddingService")<
   EmbeddingService,

@@ -1,7 +1,7 @@
 import { gen, tryPromise } from "effect/Effect"
 import type { Effect } from "effect/Effect"
 import { EmbeddingService } from "./ai"
-import { ApiError } from "./errors"
+import { ApiError } from "shared"
 
 export const store = (
   vectorize: VectorizeIndex,

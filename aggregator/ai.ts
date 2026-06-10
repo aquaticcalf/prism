@@ -3,7 +3,7 @@ import type { Effect } from "effect/Effect"
 import { tryPromise, andThen } from "effect/Effect"
 import { GoogleGenAI } from "@google/genai"
 import type { GenerateContentResponse } from "@google/genai"
-import { ApiError } from "./errors"
+import { ApiError } from "shared"
 
 const prompt = (url: string) =>
   `Visit this URL and output the page's article content verbatim as markdown.

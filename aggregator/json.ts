@@ -3,7 +3,7 @@ import { make } from "effect/JSONSchema"
 import { decodeUnknownSync } from "effect/Schema"
 import { ArticleSchema } from "./schema"
 import { AIService } from "./ai"
-import { ParseError } from "./errors"
+import { ParseError } from "shared"
 
 const responseSchema = (() => {
   const { $schema: _, $defs, ...rest } = make(ArticleSchema)

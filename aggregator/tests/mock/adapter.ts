@@ -1,6 +1,6 @@
 import type { Effect } from "effect/Effect"
 import { succeed, fail } from "effect/Effect"
-import { ApiError } from "../../errors"
+import { ApiError } from "shared"
 
 type AIServiceShape = {
   readonly generateJson: (url: string, schema: Record<string, unknown>) => Effect<string, ApiError>

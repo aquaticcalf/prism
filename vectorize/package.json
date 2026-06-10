@@ -7,7 +7,8 @@
     ".": "./index.ts"
   },
   "dependencies": {
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "shared": "workspace:*"
   },
   "devDependencies": {
     "vitest": "catalog:"
