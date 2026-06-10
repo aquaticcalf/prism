@@ -7,18 +7,33 @@ import "./style.css"
 
 const queryClient = new QueryClient()
 
+type WorkflowStatus =
+  | { status: "pending" }
+  | { status: "running" }
+  | { status: "complete"; result?: unknown }
+  | { status: "errored"; error?: string }
+
 function App() {
   const [url, setUrl] = useState("")
   const [content, setContent] = useState("")
   const [copied, setCopied] = useState(false)
+  const [, setWorkflowId] = useState<string | null>(null)
+  const [workflowStatus, setWorkflowStatus] = useState<WorkflowStatus | null>(null)
   const abortRef = useRef<AbortController | null>(null)
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  const { mutate, isPending, error } = useMutation({
+  const {
+    mutate: doStream,
+    isPending: streamPending,
+    error: streamError,
+  } = useMutation({
     mutationFn: async (targetUrl: string) => {
       abortRef.current?.abort()
       const controller = new AbortController()
       abortRef.current = controller
       setContent("")
+      setWorkflowId(null)
+      setWorkflowStatus(null)
 
       const client = hc<AppType>("/")
       const res = await client.api.browser.$get(
@@ -40,6 +55,50 @@ function App() {
     },
   })
 
+  const { mutate: doPipeline, isPending: pipelinePending } = useMutation({
+    mutationFn: async (targetUrl: string) => {
+      const client = hc<AppType>("/")
+      const res = await client.api.workflows.$post({
+        json: { url: targetUrl },
+      })
+
+      if (!res.ok) throw new Error(`Error: ${res.status}`)
+      const { workflowId } = (await res.json()) as { workflowId: string }
+      setWorkflowId(workflowId)
+      setWorkflowStatus({ status: "pending" })
+
+      const interval = setInterval(async () => {
+        const statusRes = await fetch(`/api/workflows/${workflowId}/status`)
+        const data = (await statusRes.json()) as Record<string, unknown>
+        const raw = (data.status as string) ?? (data.state as string) ?? "running"
+
+        if (raw === "complete" || raw === "completed" || raw === "ok") {
+          setWorkflowStatus({ status: "complete", result: data })
+          clearInterval(interval)
+          pollRef.current = null
+        } else if (raw === "errored" || raw === "error" || raw === "failed") {
+          setWorkflowStatus({ status: "errored", error: JSON.stringify(data.error ?? data) })
+          clearInterval(interval)
+          pollRef.current = null
+        } else {
+          setWorkflowStatus({ status: "running" })
+        }
+      }, 2000)
+
+      pollRef.current = interval
+    },
+  })
+
+  const pipelineStatusText = workflowStatus
+    ? workflowStatus.status === "pending"
+      ? "Queued..."
+      : workflowStatus.status === "running"
+        ? "Extracting & vectorizing..."
+        : workflowStatus.status === "complete"
+          ? "Done!"
+          : `Error: ${workflowStatus.error}`
+    : null
+
   return (
     <div className="flex flex-col h-dvh bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 overflow-hidden">
       <div className="flex flex-col items-center gap-6 px-8 pt-8 shrink-0">
@@ -48,7 +107,7 @@ function App() {
         <form
           onSubmit={(e) => {
             e.preventDefault()
-            if (url.trim()) mutate(url)
+            if (url.trim()) doStream(url)
           }}
           className="flex gap-2 w-full max-w-2xl"
         >
@@ -61,14 +120,26 @@ function App() {
           />
           <button
             type="submit"
-            disabled={isPending}
+            disabled={streamPending}
             className="px-6 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50 shrink-0"
           >
-            {isPending ? "Loading..." : "Fetch"}
+            {streamPending ? "Loading..." : "Fetch"}
+          </button>
+          <button
+            type="button"
+            disabled={pipelinePending || !url.trim()}
+            onClick={() => doPipeline(url)}
+            className="px-6 py-2 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 disabled:opacity-50 shrink-0"
+          >
+            {pipelinePending ? "..." : "Pipeline"}
           </button>
         </form>
 
-        {error && <p className="text-red-500">{error.message}</p>}
+        {pipelineStatusText && (
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">{pipelineStatusText}</p>
+        )}
+
+        {streamError && <p className="text-red-500">{streamError.message}</p>}
       </div>
 
       {content && (

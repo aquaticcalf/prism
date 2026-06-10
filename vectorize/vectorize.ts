@@ -7,13 +7,14 @@ export const store = (
   vectorize: VectorizeIndex,
   id: string,
   body: string,
+  url: string,
 ): Effect<string, ApiError, EmbeddingService> =>
   gen(function* () {
     const ai = yield* EmbeddingService
     const values = yield* ai.embed(body)
 
     const res = yield* tryPromise({
-      try: () => vectorize.upsert([{ id, values, metadata: { body } }]),
+      try: () => vectorize.upsert([{ id, values, metadata: { url } }]),
       catch: (e) => new ApiError(500, String(e)),
     })
 
