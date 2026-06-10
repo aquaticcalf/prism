@@ -1,10 +1,7 @@
 import { Hono } from "hono"
-import browserRoutes from "./routes/browser"
 import encodeRoutes from "./routes/encode"
 
-const app = new Hono<{ Bindings: Env }>()
-  .route("/api/browser", browserRoutes)
-  .route("/api/encode", encodeRoutes)
+const app = new Hono<{ Bindings: Env }>().route("/api/encode", encodeRoutes)
 
 export { PrismEncodeWorkflow } from "./workflows/encode"
 
