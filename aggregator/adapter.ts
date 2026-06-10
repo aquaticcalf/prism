@@ -1,11 +1,10 @@
-import { Tag } from "effect/Context"
+import { service } from "fx"
 import { make } from "effect/JSONSchema"
 import { ArticleSchema } from "./schema"
 
-export class SchemaAdapter extends Tag("SchemaAdapter")<
-  SchemaAdapter,
-  { readonly toJSONSchema: () => Record<string, unknown> }
->() {}
+export const SchemaAdapter = service<{
+  toJSONSchema: () => Record<string, unknown>
+}>("SchemaAdapter")
 
 export const makeLiveSchemaAdapter = () => {
   const { $schema: _, $defs, ...rest } = make(ArticleSchema)

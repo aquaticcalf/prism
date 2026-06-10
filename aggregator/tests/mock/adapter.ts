@@ -1,23 +1,17 @@
-import type { Effect } from "effect/Effect"
-import { succeed, fail } from "effect/Effect"
 import { ApiError } from "shared"
-
-type AIServiceShape = {
-  readonly generateJson: (url: string, schema: Record<string, unknown>) => Effect<string, ApiError>
-}
 
 export const makeTest = (options: {
   json?: {
     responses?: Record<string, unknown>
     errors?: ApiError
   }
-}): AIServiceShape => ({
-  generateJson: (url: string, _schema: Record<string, unknown>) => {
+}) => ({
+  generateJson: async (url: string, _schema: Record<string, unknown>) => {
     const err = options.json?.errors
-    if (err) return fail(err)
+    if (err) throw err
     const data = options.json?.responses?.[url]
-    if (data === undefined) return fail(new ApiError(404, `No test response for ${url}`))
-    return succeed(typeof data === "string" ? data : JSON.stringify(data))
+    if (data === undefined) throw new ApiError(404, `No test response for ${url}`)
+    return typeof data === "string" ? data : JSON.stringify(data)
   },
 })
 

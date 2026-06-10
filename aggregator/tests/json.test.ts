@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vite-plus/test"
-import { pipe } from "effect"
-import { runPromise, provideService, catchAll, succeed } from "effect/Effect"
+import { run } from "fx"
 import { json } from "../json"
 import { AIService } from "../ai"
 import { SchemaAdapter } from "../adapter"
@@ -8,14 +7,17 @@ import { ApiError, ParseError } from "shared"
 import { makeTest, makeSchemaTestAdapter } from "./mock/adapter"
 import type { Article } from "../schema"
 
-const runSafe = (url: string, adapter: ReturnType<typeof makeTest>) =>
-  runPromise(
-    pipe(
-      provideService(json(url), AIService, adapter),
-      (effect) => provideService(effect, SchemaAdapter, makeSchemaTestAdapter()),
-      catchAll((e) => succeed(e as ApiError | ParseError)),
-    ),
-  )
+const runSafe = async (url: string, adapter: ReturnType<typeof makeTest>) => {
+  try {
+    const value = await run(json(url), [
+      [AIService, adapter],
+      [SchemaAdapter, makeSchemaTestAdapter()],
+    ])
+    return value as Article
+  } catch (e) {
+    return e as ApiError | ParseError
+  }
+}
 
 describe("json", () => {
   it("returns parsed article for a valid response", async () => {

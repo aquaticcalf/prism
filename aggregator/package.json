@@ -9,6 +9,7 @@
   "dependencies": {
     "@google/genai": "catalog:",
     "effect": "catalog:",
+    "fx": "workspace:*",
     "shared": "workspace:*"
   },
   "devDependencies": {

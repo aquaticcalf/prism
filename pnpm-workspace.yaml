@@ -3,6 +3,7 @@ packages:
   - aggregator
   - vectorize
   - shared
+  - fx
 
 catalogMode: prefer
 
