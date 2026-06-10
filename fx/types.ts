@@ -4,8 +4,17 @@ import type { Effect } from "effect/Effect"
 
 class ServiceKey<T> {
   readonly _tag: Tag<T, T>
+  readonly name: string
+  private static registry = new Map<string, ServiceKey<any>>()
+
   constructor(name: string) {
     this._tag = GenericTag<T>(name)
+    this.name = name
+    ServiceKey.registry.set(name, this)
+  }
+
+  static getByName(name: string): ServiceKey<any> | undefined {
+    return ServiceKey.registry.get(name)
   }
 }
 

@@ -1,18 +1,16 @@
 import { describe, it, expect } from "vite-plus/test"
 import { run } from "fx"
 import { json } from "../json"
-import { AIService } from "../ai"
-import { SchemaAdapter } from "../adapter"
 import { ApiError, ParseError } from "shared"
 import { makeTestAIService, makeTestSchemaAdapter } from "./mock/adapter"
 import type { Article } from "../schema"
 
 const runSafe = async (url: string, adapter: ReturnType<typeof makeTestAIService>) => {
   try {
-    const value = await run(json(url), [
-      [AIService, adapter],
-      [SchemaAdapter, makeTestSchemaAdapter()],
-    ])
+    const value = await run(json(url), {
+      AIService: adapter,
+      SchemaAdapter: makeTestSchemaAdapter(),
+    })
     return value as Article
   } catch (e) {
     return e as ApiError | ParseError

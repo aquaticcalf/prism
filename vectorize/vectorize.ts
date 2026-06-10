@@ -1,5 +1,6 @@
 import { workflow } from "fx"
 import { EmbeddingService } from "./ai"
+import type { VectorizeIndex } from "./types"
 import { ApiError } from "shared"
 
 export const store = workflow(

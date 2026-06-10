@@ -1,4 +1,5 @@
 import { service } from "fx"
+import type { Ai } from "./types"
 
 export const EmbeddingService = service<{
   embed: (text: string) => number[]
