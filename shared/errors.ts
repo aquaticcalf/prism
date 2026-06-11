@@ -1,17 +1,15 @@
-export class ApiError {
+export class ApiError extends Error {
   readonly _tag = "ApiError"
   readonly status: number
-  readonly message: string
   constructor(status: number, message: string) {
+    super(message)
     this.status = status
-    this.message = message
   }
 }
 
-export class ParseError {
+export class ParseError extends Error {
   readonly _tag = "ParseError"
-  readonly message: string
   constructor(message: string) {
-    this.message = message
+    super(message)
   }
 }
