@@ -1,6 +1,6 @@
 import { WorkflowEntrypoint, WorkflowEvent, WorkflowStep } from "cloudflare:workers"
 import { run } from "fx"
-import { json, makeAIService, makeSchemaAdapter } from "aggregator"
+import { json, makeAIService, makeBrowserService, makeSchemaAdapter } from "aggregator"
 import { makeEmbeddingService, store } from "vectorize"
 
 export interface WorkflowParams {
@@ -17,6 +17,7 @@ export class PrismEncodeWorkflow extends WorkflowEntrypoint<Env, WorkflowParams>
     await step.do("extract", async () => {
       const article = await run(json(url), {
         AIService: makeAIService(this.env.AI_API_KEY),
+        BrowserService: makeBrowserService(this.env.BROWSER),
         SchemaAdapter: makeSchemaAdapter(),
       })
       articleBody = article.body
@@ -31,6 +32,6 @@ export class PrismEncodeWorkflow extends WorkflowEntrypoint<Env, WorkflowParams>
       })
     })
 
-    return { url, date: articleDate, vectorized: true }
+    return { url, date: articleDate, vectorized: true, articleBody }
   }
 }
