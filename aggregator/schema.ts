@@ -1,12 +1,13 @@
-import { Struct, NullOr, Date as DateSchema, String } from "effect/Schema"
+import { z } from "zod"
 
-export const ArticleSchema = Struct({
-  date: NullOr(
-    DateSchema.annotations({
-      description: "Publication date of the article or null if not found",
-    }),
-  ),
-  body: String.annotations({ description: "Full article body as markdown" }),
+export const ArticleJsonSchema = z.object({
+  date: z.string().nullable(),
+  body: z.string(),
 })
 
-export type Article = { date: Date | null; body: string }
+export const ArticleSchema = ArticleJsonSchema.transform((val) => ({
+  date: val.date ? new Date(val.date) : null,
+  body: val.body,
+}))
+
+export type Article = z.infer<typeof ArticleSchema>

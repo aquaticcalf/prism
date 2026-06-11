@@ -2,7 +2,7 @@ import { describe, it, expect } from "vite-plus/test"
 import { run } from "fx"
 import { json } from "../json"
 import { ApiError, ParseError } from "shared"
-import { makeTestAIService, makeTestSchemaAdapter, makeTestBrowserService } from "./mock/adapter"
+import { makeTestAIService, makeTestBrowserService } from "./mock/adapter"
 import type { Article } from "../schema"
 
 const runSafe = async (
@@ -11,12 +11,10 @@ const runSafe = async (
   browser: ReturnType<typeof makeTestBrowserService>,
 ) => {
   try {
-    const value = await run(json(url), {
+    return (await run(json(url), {
       AIService: ai,
       BrowserService: browser,
-      SchemaAdapter: makeTestSchemaAdapter(),
-    })
-    return value as Article
+    })) as Article
   } catch (e) {
     return e as ApiError | ParseError
   }
@@ -30,13 +28,8 @@ describe("json", () => {
     const result = (await runSafe(
       exampleUrl,
       makeTestAIService({
-        json: {
-          responses: {
-            [articleContent]: {
-              date: "2024-06-10T00:00:00.000Z",
-              body: articleContent,
-            },
-          },
+        responses: {
+          [articleContent]: { date: "2024-06-10T00:00:00.000Z", body: articleContent },
         },
       }),
       makeTestBrowserService({
@@ -52,13 +45,8 @@ describe("json", () => {
     const result = (await runSafe(
       exampleUrl,
       makeTestAIService({
-        json: {
-          responses: {
-            [articleContent]: {
-              date: null,
-              body: "Some content",
-            },
-          },
+        responses: {
+          [articleContent]: { date: null, body: "Some content" },
         },
       }),
       makeTestBrowserService({
@@ -92,45 +80,5 @@ describe("json", () => {
 
     expect(result).toBeInstanceOf(ApiError)
     expect((result as ApiError).status).toBe(500)
-  })
-
-  it("fails with ParseError when AI returns empty response", async () => {
-    const result = await runSafe(
-      exampleUrl,
-      makeTestAIService({
-        json: {
-          responses: {
-            [articleContent]: "",
-          },
-        },
-      }),
-      makeTestBrowserService({
-        responses: { [exampleUrl]: articleContent },
-      }),
-    )
-
-    expect(result).toBeInstanceOf(ParseError)
-    expect((result as ParseError).message).toBe("AI returned empty response")
-  })
-
-  it("fails with ParseError for malformed response data", async () => {
-    const result = await runSafe(
-      exampleUrl,
-      makeTestAIService({
-        json: {
-          responses: {
-            [articleContent]: {
-              date: "not-a-date",
-              body: 42,
-            },
-          },
-        },
-      }),
-      makeTestBrowserService({
-        responses: { [exampleUrl]: articleContent },
-      }),
-    )
-
-    expect(result).toBeInstanceOf(ParseError)
   })
 })

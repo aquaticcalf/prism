@@ -7,10 +7,9 @@
     ".": "./index.ts"
   },
   "dependencies": {
-    "@google/genai": "catalog:",
-    "effect": "catalog:",
     "fx": "workspace:*",
-    "shared": "workspace:*"
+    "shared": "workspace:*",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "vitest": "catalog:"

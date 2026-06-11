@@ -1,6 +1,5 @@
 export { json } from "./json"
 export { AIService, makeAIService } from "./ai"
 export { BrowserService, makeBrowserService } from "./browser"
-export { SchemaAdapter, makeSchemaAdapter } from "./adapter"
 export { ApiError, ParseError } from "shared"
 export type { Article } from "./schema"

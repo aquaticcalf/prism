@@ -1,29 +1,26 @@
 import { ApiError } from "shared"
 
 export const makeTestAIService = (options: {
-  json?: {
-    responses?: Record<string, unknown>
-    errors?: ApiError
-  }
+  responses?: Record<string, { date: string | null; body: string }>
+  errors?: ApiError
 }) => ({
-  generateJson: async (content: string, _schema: Record<string, unknown>) => {
-    const err = options.json?.errors
+  generateObject: async (html: string) => {
+    const err = options.errors
     if (err) throw err
-    const data = options.json?.responses?.[content]
-    if (data === undefined) throw new ApiError(404, `No test response for content`)
-    return typeof data === "string" ? data : JSON.stringify(data)
+    const article = options.responses?.[html]
+    if (!article) throw new ApiError(404, `No test response for content`)
+    return {
+      date: article.date ? new Date(article.date) : null,
+      body: article.body,
+    }
   },
-})
-
-export const makeTestSchemaAdapter = () => ({
-  toJSONSchema: () => ({ type: "object" }) as Record<string, unknown>,
 })
 
 export const makeTestBrowserService = (options: {
   responses?: Record<string, string>
   errors?: ApiError
 }) => ({
-  markdown: async (url: string) => {
+  html: async (url: string) => {
     const err = options.errors
     if (err) throw err
     const content = options.responses?.[url]

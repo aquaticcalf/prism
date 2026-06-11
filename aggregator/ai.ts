@@ -1,32 +1,40 @@
+import { z } from "zod"
 import { service } from "fx"
-import { GoogleGenAI } from "@google/genai"
-import type { GenerateContentResponse } from "@google/genai"
-
-const prompt = (content: string) =>
-  `Extract the article body and publication date from the following markdown.
-  Output the article body verbatim without any changes.
-  Use ISO 8601 format for the date (e.g. "2026-02-10" or "2026-02-10T11:36:00.000Z").
-  Set date to null if no publication date is found.
-  ${content}`
+import { ArticleSchema, ArticleJsonSchema } from "./schema"
+import type { Article } from "./schema"
+import type { ChatCompletionsOutput } from "./types"
 
 export const AIService = service<{
-  generateJson: (content: string, schema: Record<string, unknown>) => Promise<string>
+  generateObject: (html: string) => Promise<Article>
 }>("AIService")
 
-export const makeAIService = (apiKey: string) => {
-  const ai = new GoogleGenAI({ apiKey })
-  return {
-    generateJson: async (content: string, schema: Record<string, unknown>) => {
-      const r = (await ai.models.generateContent({
-        model: "gemini-3.1-flash-lite",
-        contents: [prompt(content)],
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: schema,
-          thinkingConfig: { thinkingBudget: 0 },
-        },
-      })) as GenerateContentResponse
-      return r.text ?? ""
-    },
-  }
-}
+const system =
+  "You are an article extractor. Given HTML, extract the article body and its publication date."
+
+const prompt = (html: string) =>
+  `Extract the article body and publication date from the following HTML. Output the article body verbatim as markdown without any changes. Use ISO 8601 format for the date (e.g. "2026-02-10" or "2026-02-10T11:36:00.000Z"). Set date to null if no publication date is found.
+
+${html}`
+
+const responseSchema = {
+  type: "json_schema",
+  json_schema: {
+    name: "article",
+    schema: z.toJSONSchema(ArticleJsonSchema),
+  },
+} as const
+
+export const makeAIService = (binding: Ai) => ({
+  generateObject: async (html: string) => {
+    const res = (await binding.run("@cf/meta/llama-3.1-8b-instruct", {
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: prompt(html) },
+      ],
+      response_format: responseSchema,
+    })) as ChatCompletionsOutput
+    const text = res.choices[0].message.content
+    if (!text) throw new Error("Empty response from AI")
+    return ArticleSchema.parse(JSON.parse(text))
+  },
+})
