@@ -1,18 +1,19 @@
-import { gen, try as tryEffect, fail } from "effect/Effect"
+import { workflow } from "fx"
 import { decodeUnknownSync } from "effect/Schema"
 import { ArticleSchema } from "./schema"
 import { AIService } from "./ai"
 import { SchemaAdapter } from "./adapter"
-import { ParseError } from "shared"
+import { ApiError, ParseError } from "shared"
 
-export const json = (url: string) =>
-  gen(function* () {
-    const ai = yield* AIService
-    const schemaAdapter = yield* SchemaAdapter
-    const text = yield* ai.generateJson(url, schemaAdapter.toJSONSchema())
-    if (!text) return yield* fail(new ParseError("AI returned empty response"))
-    return yield* tryEffect({
-      try: () => decodeUnknownSync(ArticleSchema)(JSON.parse(text)),
-      catch: (e) => new ParseError(String(e)),
-    })
-  })
+export const json = workflow(
+  { ai: AIService, adapter: SchemaAdapter },
+  async ({ ai, adapter }, url: string) => {
+    const text = await ai.generateJson(url, await adapter.toJSONSchema())
+    if (!text) throw new ParseError("AI returned empty response")
+    try {
+      return decodeUnknownSync(ArticleSchema)(JSON.parse(text))
+    } catch (e) {
+      throw new ParseError(String(e))
+    }
+  },
+).withErrors<ApiError | ParseError>()

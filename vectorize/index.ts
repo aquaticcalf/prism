@@ -1,4 +1,4 @@
-export { EmbeddingService, makeEmbeddingLive } from "./ai"
+export { EmbeddingService, makeEmbeddingService } from "./ai"
 export { store } from "./vectorize"
 export { ApiError, ParseError } from "shared"
 export { VectorRecordSchema } from "./schema"

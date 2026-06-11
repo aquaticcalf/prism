@@ -7,13 +7,15 @@
     "dev": "vp dev",
     "build": "tsc && vp build",
     "preview": "vp preview",
-    "types": "wrangler types"
+    "types": "wrangler types",
+    "migrate": "wrangler d1 migrations apply prism-db --local"
   },
   "dependencies": {
     "@google/genai": "catalog:",
     "@tanstack/react-query": "catalog:",
     "aggregator": "workspace:*",
     "cloudflare": "catalog:",
+    "fx": "workspace:*",
     "hono": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
