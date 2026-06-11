@@ -32,6 +32,6 @@ export class PrismEncodeWorkflow extends WorkflowEntrypoint<Env, WorkflowParams>
       })
     })
 
-    return { url, date: articleDate, vectorized: true, articleBody }
+    return { url, date: articleDate, vectorized: true }
   }
 }
