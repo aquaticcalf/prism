@@ -1,0 +1,19 @@
+{
+  "name": "db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "scripts": {
+    "generate": "drizzle-kit generate"
+  },
+  "dependencies": {
+    "drizzle-orm": "catalog:",
+    "fx": "workspace:*"
+  },
+  "devDependencies": {
+    "drizzle-kit": "catalog:"
+  }
+}

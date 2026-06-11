@@ -7,7 +7,8 @@
     "dev": "vp dev",
     "build": "tsc && vp build",
     "preview": "vp preview",
-    "types": "wrangler types"
+    "types": "wrangler types",
+    "migrate": "wrangler d1 migrations apply prism-db --local"
   },
   "dependencies": {
     "@google/genai": "catalog:",
